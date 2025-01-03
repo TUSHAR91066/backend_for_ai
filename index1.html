@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bro.AI</title>
+    <style>
+        /*styling for body and layout*/
+        body {
+            font-family: "Georgia", serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            color: #333;
+        }
+
+        header {
+            background-color: #284B63;
+            color: white;
+            text-align: center;
+            padding: 1.5em 0;
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1em;
+            margin: 5px 0 0;
+        }
+
+        header a {
+            color: white;
+            text-decoration: underline;
+            font-size: 0.9em;
+        }
+
+        #options-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #ffffff;
+            box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-button {
+            background-color:#284B63;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .option-button:hover {
+            background-color: #3b7dd8;
+        }
+
+        #chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 75%;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            background-color: #e0f7fa;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #f1f1f1;
+            align-self: flex-start;
+        }
+
+        #input-container {
+            display: flex;
+            padding: 15px;
+            background-color: #ffffff;
+            border-top: 1px solid #ddd;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        #send-button {
+            background-color: #284B63;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #3b7dd8;
+        }
+    </style>
+</head>
+<body>
+    <!--header section with title and description-->
+    <header>
+        <h1>Bro.AI</h1>
+        <p>The brother that is always there for you!<a href="https://mental-health-chatbot-684.framer.ai/page-4" target="_blank">Home</a></p>
+    </header>
+
+    <!--containers with buttons for quick responses-->
+    <div id="options-container">
+        <button class="option-button" data-response="I am feeling sad">I'm Feeling Sad</button>
+        <button class="option-button" data-response="I am feeling happy">I'm Feeling Happy</button>
+        <button class="option-button" data-response="I need some advice">I Need Advice</button>
+    </div>
+
+    <!--container for displaying conversation-->
+    <div id="chat-container">
+        <div class="bot-message message">Hello! I'm here to support you. How are you feeling today?</div>
+    </div>
+    
+    <!--container for user interaction-->
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="Type your message here...">
+        <button id="send-button">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const optionButtons = document.querySelectorAll('.option-button');//predefined option buttons
+        
+        //dictionary for matching user emotions
+        const responses = {
+            'sad': "I'm sorry to hear that. Can you tell me more about what's making you feel this way?",
+            'happy': "That's wonderful! What brought you happiness today?",
+            'advice': "Of course! Please let me know what you're seeking advice about, and I'll do my best to help.",
+            'anxious': "Feeling anxious can be tough. Would you like to try some breathing exercises together?",
+            'overwhelmed': "It's okay to feel overwhelmed sometimes. Let’s break things down one step at a time.",
+            'lonely': "Feeling lonely is hard. I'm here to listen if you’d like to talk.",
+            'angry': "It’s okay to feel angry. Can you tell me what’s causing these feelings?",
+            'tired': "Rest is important. Have you had a chance to take a break or relax today?",
+            'stressed': "Stress can be overwhelming. Let’s talk about what’s on your mind.",
+            'confused': "I’d be happy to help you make sense of things. What’s confusing you?",
+            'hopeful': "Hope is a powerful feeling. What’s giving you hope today?",
+            'grateful': "That’s lovely to hear. What are you feeling grateful for?",
+            'nervous': "Being nervous is natural. Would you like some tips to feel calmer?",
+            'lost': "Feeling lost is tough. Can you tell me more about what’s going on?",
+            'calm': "That’s great to hear. How can I support you further?",
+            'confident': "I’m glad you’re feeling confident. What’s contributing to this positive energy?",
+            'curious': "Curiosity is great! What would you like to explore today?",
+            'hurt': "I’m sorry you’re feeling hurt. Do you want to talk about what happened?",
+            'hope': "Hope can be a light in the dark. How can we nurture that hope together?",
+            'joyful': "It’s wonderful that you’re feeling joyful. What’s been going well for you?",
+            'fear': "Fear can be powerful. I’m here to help you feel safe. What’s worrying you?",
+            'optimistic': "Optimism is uplifting. What are you looking forward to?",
+            'pessimistic': "It’s okay to feel uncertain. Let’s work through these thoughts together.",
+            'bored': "Feeling bored can be an opportunity to discover something new. What do you enjoy doing?",
+            'excited': "That’s fantastic! What’s got you feeling so excited?",
+            'disappointed': "Disappointment can be hard to handle. Let’s talk about what happened.",
+            'ashamed': "Shame can feel heavy. Remember, it’s okay to talk about it, and I’m here to listen.",
+            'proud': "You should be proud of yourself! What achievement are you celebrating?",
+            'guilty': "Guilt can be difficult to manage. Do you want to share what’s on your mind?",
+            'relieved': "Relief is a comforting feeling. What’s brought you this sense of peace?",
+            'inspired': "Inspiration can be a driving force. What’s motivating you today?",
+            'worried': "Worry can weigh on you. Let’s explore what’s causing it.",
+            'focused': "Focus is a valuable state of mind. What are you working on?",
+            'distracted': "Distractions happen to everyone. How can we get back on track?",
+            'hopeful': "It’s great to have hope. What are you looking forward to?",
+        };
+
+        const defaultResponse = "I'm here to listen. Please share more if you'd like.";
+
+        //add new message to the chat container
+        function addMessage(content, isUser) {
+            const message = document.createElement('div');
+            message.textContent = content;
+            message.className = isUser ? 'user-message message' : 'bot-message message';
+            chatContainer.appendChild(message);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        //get response based on the user's input
+        function getResponse(userMessage) {
+            const lowerCaseMessage = userMessage.toLowerCase();
+            let matchedResponses = [];
+
+            for (const keyword in responses) {
+                if (lowerCaseMessage.includes(keyword)) {
+                    matchedResponses.push(responses[keyword]);
+                }
+            }
+
+            if (matchedResponses.length > 0) {
+                return matchedResponses.join(' ');
+            }
+
+            return defaultResponse;
+        }
+
+        //event listener for the send button
+        sendButton.addEventListener('click', () => {
+            const userMessage = userInput.value.trim();
+            if (userMessage) {
+                addMessage(userMessage, true);
+                userInput.value = '';
+
+                const botResponse = getResponse(userMessage);
+                setTimeout(() => addMessage(botResponse, false), 500);
+            }
+        });
+
+        //allows pressing enter to send messages
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+        //event listeners for predefined option buttons
+        optionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const userMessage = button.getAttribute('data-response');
+                addMessage(userMessage, true);
+
+                const botResponse = getResponse(userMessage);
+                setTimeout(() => addMessage(botResponse, false), 500);
+            });
+        });
+    </script>
+</body>
+</html>
